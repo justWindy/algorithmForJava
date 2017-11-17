@@ -1,0 +1,12 @@
+/target/
+/.settings/
+.project
+.classpa/all
+/**/target/
+/**/.settings/
+/.idea/
+.svn
+.classpath
+*.iml
+*.log
+tree.txt
