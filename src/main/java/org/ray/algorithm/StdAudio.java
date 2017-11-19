@@ -208,7 +208,7 @@ public final class StdAudio {
             AudioFormat audioFormat = audioInputStream.getFormat();
 
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-            line = (SourceDataLine)AudioSystem.getLine(info);
+            line = (SourceDataLine) AudioSystem.getLine(info);
             line.open(audioFormat);
             line.start();
             byte[] samples = new byte[BUFFER_SIZE];
@@ -236,6 +236,29 @@ public final class StdAudio {
             throw new IllegalArgumentException();
         }
 
+        try {
+            Clip clip = AudioSystem.getClip();
+            InputStream inputStream = StdAudio.class.getResourceAsStream(filename);
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(inputStream);
+            clip.open(audioInputStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (UnsupportedAudioFileException e) {
+            throw new IllegalArgumentException("unsupported audio format: '" + filename + "'", e);
+        } catch (LineUnavailableException e) {
+            throw new IllegalArgumentException("could not play '" + filename + "'", e);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("could not play '" + filename + "'", e);
+        }
 
+    }
+
+    private static double[] note(double hz, double duration, double amplitude) {
+        int n = (int) (StdAudio.SAMPLE_RATE * duration);
+        double[] a = new double[n + 1];
+        for (int i = 0; i <= n; i++) {
+            a[i] = amplitude * Math.sin(2 * Math.PI * i * hz / StdAudio.SAMPLE_RATE);
+        }
+
+        return a;
     }
 }
