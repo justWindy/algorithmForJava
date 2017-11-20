@@ -170,7 +170,37 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 
         offscreen = offscreenImage.createGraphics();
         onscreen = onscreenImage.createGraphics();
+        setXscale();
+        setYscale();
+        offscreen.setColor(DEFAULT_CLEAR_COLOR);
+        offscreen.fillRect(0, 0, width, height);
+        setPenColor();
+        setPenRadius();
+        setFont();
+        clear();
 
+    }
+
+    public static void clear() {
+        clear(DEFAULT_CLEAR_COLOR);
+    }
+
+    public static void clear(Color color) {
+        offscreen.setColor(color);
+        offscreen.fillRect(0, 0, width, height);
+        offscreen.setColor(penColor);
+        draw();
+    }
+
+    public static void show() {
+        onscreen.drawImage(offscreenImage, 0, 0, null);
+        frame.repaint();
+    }
+
+    private static void draw() {
+        if (!defer) {
+            show();
+        }
     }
 
     public static void setXscale() {
@@ -197,6 +227,10 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         }
     }
 
+    public static Color getPenColor() {
+        return penColor;
+    }
+
     public static void setYscale(double min, double max) {
         double size = max - min;
         if (size == 0.0) {
@@ -206,6 +240,50 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
             ymin = min - BORDER * size;
             ymax = max + BORDER * size;
         }
+    }
+
+    public static void setPenColor() {
+        setPenColor(DEFAULT_PEN_COLOR);
+    }
+
+    public static void setPenColor(Color color) {
+        if (color == null) {
+            throw new IllegalArgumentException();
+        }
+        penColor = color;
+        offscreen.setColor(penColor);
+    }
+
+    public static double getPenRadius() {
+        return penRadius;
+    }
+
+    public static void setPenRadius() {
+
+    }
+
+    public static void setPenRadius(double radius) {
+        if (!(radius >= 0)) {
+            throw new IllegalArgumentException("pen radius must be non-negative");
+        }
+        penRadius = radius;
+        float scaledPenRadius = (float) (radius * DEFAULT_SIZE);
+        BasicStroke stroke = new BasicStroke(scaledPenRadius, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+    }
+
+    public static Font getFont() {
+        return font;
+    }
+
+    public static void setFont() {
+        setFont(DEFAULT_FONT);
+    }
+
+    public static void setFont(Font font) {
+        if (font == null) {
+            throw new IllegalArgumentException();
+        }
+        StdDraw.font = font;
     }
 
     public void actionPerformed(ActionEvent e) {
