@@ -18,6 +18,10 @@ public final class StdIn {
 
     private static Scanner scanner;
 
+    static {
+        resync();
+    }
+
     private StdIn() {
 
     }
@@ -152,7 +156,7 @@ public final class StdIn {
     public static long[] readAllLongs() {
         String[] fields = readAllStrings();
         long[] vals = new long[fields.length];
-        for (int i=0; i<fields.length; i++) {
+        for (int i = 0; i < fields.length; i++) {
             vals[i] = Long.parseLong(fields[i]);
         }
 
@@ -162,15 +166,11 @@ public final class StdIn {
     public static double[] readAllDoubles() {
         String[] fields = readAllStrings();
         double[] vals = new double[fields.length];
-        for (int i=0; i<fields.length; i++) {
+        for (int i = 0; i < fields.length; i++) {
             vals[i] = Double.parseDouble(fields[i]);
         }
 
         return vals;
-    }
-
-    static {
-        resync();
     }
 
     private static void resync() {
