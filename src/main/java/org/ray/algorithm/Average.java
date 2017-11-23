@@ -9,6 +9,7 @@ public class Average {
         while (!StdIn.isEmpty()) {
             sum += StdIn.readDouble();
             count++;
+
         }
         double avg = sum / count;
         StdOut.printf("Average is %.5f\n", avg);
