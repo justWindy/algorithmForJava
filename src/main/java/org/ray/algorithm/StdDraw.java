@@ -3,6 +3,10 @@ package org.ray.algorithm;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.TreeSet;
@@ -237,6 +241,43 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         setYscale();
     }
 
+    public static void setScale(double min, double max) {
+        double size = max - min;
+        if (size == 0.0) {
+            throw new IllegalArgumentException("the min and max are the same");
+        }
+        synchronized (mouseLock) {
+            xmin = min - BORDER * size;
+            xmax = max + BORDER * size;
+            ymin = min - BORDER * size;
+            ymax = max + BORDER * size;
+        }
+    }
+
+    private static double scaleX(double x) {
+        return width * (x - xmin) / (xmax - xmin);
+    }
+
+    private static double scaleY(double y) {
+        return height * (ymax - y) / (ymax - ymin);
+    }
+
+    private static double factorX(double w) {
+        return w * width / Math.abs(xmax - xmin);
+    }
+
+    private static double factorY(double h) {
+        return h * height / Math.abs(ymax - ymin);
+    }
+
+    private static double userX(double x) {
+        return xmin + x * (xmax - xmin) / width;
+    }
+
+    private static double userY(double y) {
+        return ymax - y * (ymax - ymin) / height;
+    }
+
     public static void setXscale(double min, double max) {
         double size = max - min;
         if (size == 0.0) {
@@ -320,6 +361,165 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         menu.add(menuItem);
         return menuBar;
     }
+
+    public static void line(double x0, double y0, double x1, double y1) {
+        offscreen.draw(new Line2D.Double(scaleX(x0), scaleY(y0), scaleX(x1), scaleY(y1)));
+        draw();
+    }
+
+    private static void pixel(double x, double y) {
+        offscreen.fillRect((int) Math.round(scaleX(x)), (int) Math.round(scaleY(y)), 1, 1);
+    }
+
+    public static void point(double x, double y) {
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double r = penRadius;
+
+        float scalePenRadius = (float) (r * DEFAULT_SIZE);
+
+        if (scalePenRadius <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.fill(new Ellipse2D.Double(xs - scalePenRadius / 2, ys - scalePenRadius / 2, scalePenRadius,
+                                                scalePenRadius));
+        }
+        draw();
+    }
+
+    public static void circle(double x, double y, double radius) {
+        if (!(radius >= 0)) {
+            throw new IllegalArgumentException("radius must be no-negative");
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * radius);
+        double hs = factorY(2 * radius);
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.fill(new Ellipse2D.Double(xs - ws / 2, ys - hs / 2, ws, hs));
+        }
+        draw();
+    }
+
+    public static void filledCircle(double x, double y, double radius) {
+        if (radius < 0) {
+            throw new IllegalArgumentException("radius must be non-negative");
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * radius);
+        double hs = factorY(2 * radius);
+
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.fill(new Ellipse2D.Double(xs - ws / 2, ys - hs / 2, ws, hs));
+        }
+        draw();
+
+    }
+
+    public static void ellipse(double x, double y, double semiMajorAxis, double semiMinorAxis) {
+        if (semiMajorAxis < 0) {
+            throw new IllegalArgumentException("ellipse semimajor axis must be non-negative");
+        }
+
+        if (semiMinorAxis < 0) {
+            throw new IllegalArgumentException("ellipse semiminor axis must be non-negative");
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * semiMajorAxis);
+        double hs = factorY(2 * semiMinorAxis);
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.fill(new Ellipse2D.Double(xs - ws / 2, ys - hs / 2, ws, hs));
+        }
+        draw();
+
+    }
+
+    public static void filledEllipse(double x, double y, double semiMajorAxis, double semiMinorAxis) {
+        if (!(semiMajorAxis >= 0)) {
+            throw new IllegalArgumentException("ellipse semimajor axis must be non-negative");
+        }
+
+        if (!(semiMinorAxis >= 0)) {
+            throw new IllegalArgumentException("ellipse semiminor axis must be non-negative");
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * semiMajorAxis);
+        double hs = factorY(2 * semiMinorAxis);
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.fill(new Ellipse2D.Double(xs - ws / 2, ys - hs / 2, ws, hs));
+        }
+        draw();
+
+    }
+
+    public static void arc(double x, double y, double radius, double angle1, double angle2) {
+        if (radius < 0) {
+            throw new IllegalArgumentException("half length must be non-negative");
+        }
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * radius);
+        double hs = factorY(2 * radius);
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.draw(new Arc2D.Double(xs - ws / 2, ys - hs / 2, ws, hs, angle1, angle2 - angle1, Arc2D.OPEN));
+        }
+        draw();
+
+    }
+
+    public static void square(double x, double y, double halfLength) {
+        if (halfLength < 0) {
+            throw new IllegalArgumentException("half length must be non-negative");
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * halfLength);
+        double hs = factorY(2 * halfLength);
+
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.draw(new Rectangle2D.Double(xs - ws / 2, ys - hs / 2, ws, hs));
+        }
+        draw();
+    }
+
+    public static void filledSquare(double x, double y, double halfLength) {
+        if (halfLength < 0) {
+            throw new IllegalArgumentException("half length must be non-negative");
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * halfLength);
+        double hs = factorY(2 * halfLength);
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.fill(new Rectangle2D.Double(xs - ws/2, ys - hs/2, ws, hs));
+        }
+        draw();
+    }
+
+
 
     public void actionPerformed(ActionEvent e) {
 
