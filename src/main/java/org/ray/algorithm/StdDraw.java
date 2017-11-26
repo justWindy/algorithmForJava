@@ -179,6 +179,27 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         setFont();
         clear();
 
+        RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+                                                  RenderingHints.VALUE_ANTIALIAS_ON);
+        hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        offscreen.addRenderingHints(hints);
+
+        ImageIcon imageIcon = new ImageIcon(onscreenImage);
+        JLabel draw = new JLabel(imageIcon);
+
+        draw.addMouseListener(std);
+        draw.addMouseMotionListener(std);
+
+        frame.setContentPane(draw);
+        frame.addKeyListener(std);
+        frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setTitle("Standard Draw");
+        frame.setJMenuBar(createMenuBar());
+        frame.pack();
+        frame.requestFocusInWindow();
+        frame.setVisible(true);
     }
 
     public static void clear() {
@@ -269,6 +290,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         penRadius = radius;
         float scaledPenRadius = (float) (radius * DEFAULT_SIZE);
         BasicStroke stroke = new BasicStroke(scaledPenRadius, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        offscreen.setStroke(stroke);
     }
 
     public static Font getFont() {
@@ -284,6 +306,19 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
             throw new IllegalArgumentException();
         }
         StdDraw.font = font;
+    }
+
+    private static JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("File");
+
+        menuBar.add(menu);
+        JMenuItem menuItem = new JMenuItem("Save...");
+        menuItem.addActionListener(std);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                                                       Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menu.add(menuItem);
+        return menuBar;
     }
 
     public void actionPerformed(ActionEvent e) {
