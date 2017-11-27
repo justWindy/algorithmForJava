@@ -1,7 +1,5 @@
 package org.ray.algorithm;
 
-import java.util.Locale;
-
 public class Average {
 
     public static void main(String[] args) {
@@ -20,7 +18,5 @@ public class Average {
         double avg = sum / count;
         StdOut.printf("Average is %.5f\n", avg);*/
     }
-
-
 
 }
