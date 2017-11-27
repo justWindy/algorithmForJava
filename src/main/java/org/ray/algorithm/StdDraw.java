@@ -3,11 +3,10 @@ package org.ray.algorithm;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -514,12 +513,153 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         if (ws <= 1 && hs <= 1) {
             pixel(x, y);
         } else {
-            offscreen.fill(new Rectangle2D.Double(xs - ws/2, ys - hs/2, ws, hs));
+            offscreen.fill(new Rectangle2D.Double(xs - ws / 2, ys - hs / 2, ws, hs));
         }
         draw();
     }
 
+    public static void rectangle(double x, double y, double halfWidth, double halfHeight) {
+        if (halfWidth < 0) {
+            throw new IllegalArgumentException("half width must be non-negative");
+        }
 
+        if (halfHeight < 0) {
+            throw new IllegalArgumentException("half height must be non-negative");
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * halfWidth);
+        double hs = factorY(2 * halfHeight);
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.draw(new Rectangle2D.Double(xs - ws / 2, ys - hs / 2, ws, hs));
+        }
+        draw();
+
+    }
+
+    public static void filledRectangle(double x, double y, double halfWidth, double halfHeight) {
+        if (halfWidth < 0) {
+            throw new IllegalArgumentException("half width must be non-negative");
+        }
+
+        if (halfHeight < 0) {
+            throw new IllegalArgumentException("half height must be non-negative");
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(2 * halfWidth);
+        double hs = factorY(2 * halfHeight);
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.fill(new Rectangle2D.Double(xs - ws / 2, ys - hs / 2, ws, hs));
+        }
+        draw();
+    }
+
+    public static void polygon(double[] x, double[] y) {
+        if (x == null) {
+            throw new IllegalArgumentException();
+        }
+
+        if (y == null) {
+            throw new IllegalArgumentException();
+        }
+
+        int n1 = x.length;
+        int n2 = y.length;
+
+        if (n1 != n2) {
+            throw new IllegalArgumentException("arrays must be of the same length");
+        }
+        int n = n1;
+        GeneralPath path = new GeneralPath();
+        path.moveTo((float) scaleX(x[0]), (float) scaleY(y[0]));
+        for (int i = 0; i < n; i++) {
+            path.lineTo((float) scaleX(x[i]), (float) scaleY(y[i]));
+        }
+        path.closePath();
+        offscreen.draw(path);
+        draw();
+
+    }
+
+    public static void filledPolygon(double[] x, double[] y) {
+        if (x == null) {
+            throw new IllegalArgumentException();
+        }
+
+        if (y == null) {
+            throw new IllegalArgumentException();
+        }
+
+        int n1 = x.length;
+        int n2 = y.length;
+        if (n1 != n2) {
+            throw new IllegalArgumentException("arrays must be of the same length");
+        }
+        int n = n1;
+        GeneralPath path = new GeneralPath();
+        path.moveTo((float) scaleX(x[0]), (float) scaleY(y[0]));
+        for (int i = 0; i < n; i++) {
+            path.lineTo((float) scaleX(x[i]), (float) scaleY(y[i]));
+        }
+        path.closePath();
+        offscreen.fill(path);
+        draw();
+    }
+
+    private static Image getImage(String filename) {
+        if (filename == null) {
+            throw new IllegalArgumentException();
+        }
+
+        ImageIcon imageIcon = new ImageIcon(filename);
+        if ((imageIcon == null) || (imageIcon.getImageLoadStatus() != MediaTracker.COMPLETE)) {
+            try {
+                URL url = new URL(filename);
+                imageIcon = new ImageIcon(url);
+            } catch (MalformedURLException e) {
+
+            }
+        }
+
+        if ((imageIcon == null) || (imageIcon.getImageLoadStatus() != MediaTracker.COMPLETE)) {
+            URL url = StdDraw.class.getResource(filename);
+            if (url != null) {
+                imageIcon = new ImageIcon(url);
+            }
+        }
+
+        if ((imageIcon == null) || (imageIcon.getImageLoadStatus() != MediaTracker.COMPLETE)) {
+            URL url = StdDraw.class.getResource("/" + filename);
+            if (url == null) {
+                throw new IllegalArgumentException("image " + filename + " not found");
+            }
+            imageIcon = new ImageIcon(url);
+        }
+
+        return imageIcon.getImage();
+    }
+
+    public static void picture(double x, double y, String filename) {
+        Image image = getImage(filename);
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+
+        int ws = image.getWidth(null);
+        int hs = image.getHeight(null);
+        if (ws < 0 || hs < 0) {
+            throw new IllegalArgumentException("image " + filename + " is corrupt");
+        }
+        offscreen.drawImage(image, (int) Math.round(xs - ws / 2.0), (int) Math.round(ys - hs / 2.0), null);
+        draw();
+    }
 
     public void actionPerformed(ActionEvent e) {
 
