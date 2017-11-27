@@ -1,9 +1,15 @@
 package org.ray.algorithm;
 
+import java.util.Locale;
+
 public class Average {
 
     public static void main(String[] args) {
-        double sum = 0.0;
+
+        System.out.println("length:" + "9223372036854775807".length());
+
+        System.out.println("max:" + Long.MAX_VALUE);
+        /*double sum = 0.0;
 
         int count = 0;
         while (!StdIn.isEmpty()) {
@@ -12,7 +18,9 @@ public class Average {
 
         }
         double avg = sum / count;
-        StdOut.printf("Average is %.5f\n", avg);
+        StdOut.printf("Average is %.5f\n", avg);*/
     }
+
+
 
 }

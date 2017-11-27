@@ -1,10 +1,25 @@
 package org.ray.algorithm;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DirectColorModel;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
@@ -76,42 +91,33 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
     public static final Color BOOK_RED = new Color(150, 35, 31);
 
     // default colors
-    private static final Color DEFAULT_PEN_COLOR   = BLACK;
-    private static final Color DEFAULT_CLEAR_COLOR = WHITE;
-
-    // current pen color
-    private static Color penColor;
-
+    private static final Color  DEFAULT_PEN_COLOR   = BLACK;
+    private static final Color  DEFAULT_CLEAR_COLOR = WHITE;
     // default canvas size is DEFAULT_SIZE-by-DEFAULT_SIZE
-    private static final int DEFAULT_SIZE = 512;
-    private static       int width        = DEFAULT_SIZE;
-    private static       int height       = DEFAULT_SIZE;
-
+    private static final int    DEFAULT_SIZE        = 512;
     // default pen radius
-    private static final double DEFAULT_PEN_RADIUS = 0.002;
-
-    // current pen radius
-    private static double penRadius;
-
-    // show we draw immediately or wait until next show?
-    private static boolean defer = false;
-
+    private static final double DEFAULT_PEN_RADIUS  = 0.002;
     // boundary of drawing canvas, 0% border
     // private static final double BORDER = 0.05;
-    private static final double BORDER       = 0.00;
-    private static final double DEFAULT_XMIN = 0.0;
-    private static final double DEFAULT_XMAX = 1.0;
-    private static final double DEFAULT_YMIN = 0.0;
-    private static final double DEFAULT_YMAX = 1.0;
+    private static final double BORDER              = 0.00;
+    private static final double DEFAULT_XMIN        = 0.0;
+    private static final double DEFAULT_XMAX        = 1.0;
+    private static final double DEFAULT_YMIN        = 0.0;
+    private static final double DEFAULT_YMAX        = 1.0;
+    // default font
+    private static final Font   DEFAULT_FONT        = new Font("SansSerif", Font.PLAIN, 16);
+    // current pen color
+    private static Color penColor;
+    private static int width  = DEFAULT_SIZE;
+    private static int height = DEFAULT_SIZE;
+    // current pen radius
+    private static double penRadius;
+    // show we draw immediately or wait until next show?
+    private static boolean defer = false;
     private static double xmin, ymin, xmax, ymax;
-
     // for synchronization
     private static Object mouseLock = new Object();
     private static Object keyLock   = new Object();
-
-    // default font
-    private static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 16);
-
     // current font
     private static Font font;
 
@@ -140,13 +146,13 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
     // used to control the frame rate
     private static long nextDraw = -1;
 
-    // singleton pattern: client can't instantiate
-    private StdDraw() {
-    }
-
     // static initializer
     static {
         init();
+    }
+
+    // singleton pattern: client can't instantiate
+    private StdDraw() {
     }
 
     public static void setCanvasSize() {
@@ -292,6 +298,14 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         return penColor;
     }
 
+    public static void setPenColor(Color color) {
+        if (color == null) {
+            throw new IllegalArgumentException();
+        }
+        penColor = color;
+        offscreen.setColor(penColor);
+    }
+
     public static void setYscale(double min, double max) {
         double size = max - min;
         if (size == 0.0) {
@@ -307,20 +321,8 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         setPenColor(DEFAULT_PEN_COLOR);
     }
 
-    public static void setPenColor(Color color) {
-        if (color == null) {
-            throw new IllegalArgumentException();
-        }
-        penColor = color;
-        offscreen.setColor(penColor);
-    }
-
     public static double getPenRadius() {
         return penRadius;
-    }
-
-    public static void setPenRadius() {
-
     }
 
     public static void setPenRadius(double radius) {
@@ -333,12 +335,12 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         offscreen.setStroke(stroke);
     }
 
-    public static Font getFont() {
-        return font;
+    public static void setPenRadius() {
+
     }
 
-    public static void setFont() {
-        setFont(DEFAULT_FONT);
+    public static Font getFont() {
+        return font;
     }
 
     public static void setFont(Font font) {
@@ -346,6 +348,10 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
             throw new IllegalArgumentException();
         }
         StdDraw.font = font;
+    }
+
+    public static void setFont() {
+        setFont(DEFAULT_FONT);
     }
 
     private static JMenuBar createMenuBar() {
@@ -679,7 +685,183 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         draw();
     }
 
+    public static void picture(double x, double y, String filename, double scaleWidth, double scaleHeight) {
+        Image image = getImage(filename);
+        if (scaleWidth < 0) {
+            throw new IllegalArgumentException("width is negative: " + scaleWidth);
+        }
+
+        if (scaleHeight < 0) {
+            throw new IllegalArgumentException("height is negative: " + scaleHeight);
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(scaleWidth);
+        double hs = factorY(scaleHeight);
+
+        if (ws < 0 || hs < 0) {
+            throw new IllegalArgumentException("image " + filename + " is corrupt");
+        }
+
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        } else {
+            offscreen.drawImage(image, (int) Math.round(xs - ws / 2.0),
+                                (int) Math.round(ys - hs / 2.0),
+                                (int) Math.round(ws),
+                                (int) Math.round(hs), null);
+        }
+        draw();
+    }
+
+    public static void picture(double x, double y, String filename, double scaledWidth, double scaledHeight,
+                               double degrees) {
+        if (scaledWidth < 0) {
+            throw new IllegalArgumentException("width is negative: " + scaledWidth);
+        }
+
+        if (scaledHeight < 0) {
+            throw new IllegalArgumentException("height is negative: " + scaledHeight);
+        }
+
+        Image image = getImage(filename);
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        double ws = factorX(scaledWidth);
+        double hs = factorY(scaledHeight);
+        if (ws < 0 || hs < 0) {
+            throw new IllegalArgumentException("image " + filename + " is corrupt");
+        }
+
+        if (ws <= 1 && hs <= 1) {
+            pixel(x, y);
+        }
+
+        offscreen.rotate(Math.toRadians(-degrees), xs, ys);
+        offscreen.drawImage(image, (int) Math.round(xs - ws / 2.0),
+                            (int) Math.round(ys - hs / 2.0),
+                            (int) Math.round(ws),
+                            (int) Math.round(hs), null);
+        offscreen.rotate(Math.toRadians(+degrees), xs, ys);
+        draw();
+    }
+
+    public static void text(double x, double y, String text) {
+        if (text == null) {
+            throw new IllegalArgumentException();
+        }
+
+        offscreen.setFont(font);
+        FontMetrics metrics = offscreen.getFontMetrics();
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        int ws = metrics.stringWidth(text);
+        int hs = metrics.getDescent();
+        offscreen.drawString(text, (float) (xs - ws / 2.0), (float) (ys + hs));
+        draw();
+    }
+
+    public static void text(double x, double y, String text, double degress) {
+        if (text == null) {
+            throw new IllegalArgumentException();
+        }
+
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+        offscreen.rotate(Math.toRadians(-degress), xs, ys);
+        text(x, y, text);
+        offscreen.rotate(Math.toRadians(+degress), xs, ys);
+    }
+
+    public static void textLeft(double x, double y, String text) {
+        if (text == null) {
+            throw new IllegalArgumentException();
+        }
+
+        offscreen.setFont(font);
+        FontMetrics metrics = offscreen.getFontMetrics();
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+
+        int hs = metrics.getDescent();
+        offscreen.drawString(text, (float) xs, (float) (ys + hs));
+        draw();
+    }
+
+    public static void textRight(double x, double y, String text) {
+        if (text == null) {
+            throw new IllegalArgumentException();
+        }
+
+        offscreen.setFont(font);
+        FontMetrics metrics = offscreen.getFontMetrics();
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+
+        int ws = metrics.stringWidth(text);
+        int hs = metrics.getDescent();
+        offscreen.drawString(text, (float) (xs - ws), (float) (ys + hs));
+        draw();
+    }
+
+    public static void pause(int t) {
+        long millis = System.currentTimeMillis();
+        if (millis < nextDraw) {
+            try {
+                Thread.sleep(nextDraw - millis);
+            } catch (InterruptedException e) {
+                System.out.println("Error sleeping");
+            }
+            millis = nextDraw;
+        }
+
+        nextDraw = millis + t;
+    }
+
+    public static void enableDoubleBuffering() {
+        defer = true;
+    }
+
+    public static void disableDoubleBuffering() {
+        defer = false;
+    }
+
+    public static void save(String filename) {
+        if (filename == null) {
+            throw new IllegalArgumentException();
+        }
+
+        File file = new File(filename);
+        String suffix = filename.substring(filename.lastIndexOf('.') + 1);
+
+        if ("png".equalsIgnoreCase(suffix)) {
+            try {
+                ImageIO.write(onscreenImage, suffix, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if ("jpg".equalsIgnoreCase(suffix)) {
+            WritableRaster raster = onscreenImage.getRaster();
+            WritableRaster newRaster = raster.createWritableChild(0, 0, width, height, 0, 0, new int[] { 0, 1, 2 });
+            DirectColorModel directColorModel = (DirectColorModel) onscreenImage.getColorModel();
+            DirectColorModel newCM = new DirectColorModel(directColorModel.getPixelSize(),
+                                                          directColorModel.getRedMask(),
+                                                          directColorModel.getGreenMask(),
+                                                          directColorModel.getBlueMask());
+            BufferedImage rgbBuffer = new BufferedImage(newCM, newRaster, false, null);
+            try {
+                ImageIO.write(rgbBuffer, suffix, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Invalid image file type: " + suffix);
+        }
+    }
+
     public void actionPerformed(ActionEvent e) {
+        FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
 
     }
 
