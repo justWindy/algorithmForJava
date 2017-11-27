@@ -661,6 +661,24 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         draw();
     }
 
+    public static void picture(double x, double y, String filename, double degrees) {
+        Image image = getImage(filename);
+        double xs = scaleX(x);
+        double ys = scaleY(y);
+
+        int ws = image.getWidth(null);
+        int hs = image.getHeight(null);
+        if (ws < 0 || hs < 0) {
+            throw new IllegalArgumentException("image " + filename + " is corrupt");
+        }
+
+        offscreen.rotate(Math.toRadians(-degrees), xs, ys);
+        offscreen.drawImage(image, (int) Math.round(xs - ws / 2.0), (int) Math.round(ys - hs / 2), null);
+        offscreen.rotate(Math.toRadians(+degrees), xs, ys);
+
+        draw();
+    }
+
     public void actionPerformed(ActionEvent e) {
 
     }
