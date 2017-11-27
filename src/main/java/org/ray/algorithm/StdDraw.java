@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.TreeSet;
 
 public final class StdDraw implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
@@ -860,21 +861,71 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         }
     }
 
+    public static boolean mousePressed() {
+        synchronized (mouseLock) {
+            return mousePressed;
+        }
+    }
+
+    public static double mouseX() {
+        synchronized (mouseLock) {
+            return mouseX;
+        }
+    }
+
+    public static double mouseY() {
+        synchronized (mouseLock) {
+            return mouseY;
+        }
+    }
+
+    public static boolean hasNextKeyTyped() {
+        synchronized (keyLock) {
+            return !keysTyped.isEmpty();
+        }
+    }
+
+    public static char nextKeyTyped() {
+        synchronized (keyLock) {
+            if (keysTyped.isEmpty()) {
+                throw new NoSuchElementException("your program has already processed all keystrokes");
+            }
+            return keysTyped.removeLast();
+        }
+    }
+
+    public static boolean isKeyPressed(int keycode) {
+        synchronized (keyLock) {
+            return keysDown.contains(keycode);
+        }
+    }
+
     public void actionPerformed(ActionEvent e) {
         FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
+        chooser.setVisible(true);
+        String filename = chooser.getFile();
+        if (filename != null) {
+            StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+        }
 
     }
 
     public void keyTyped(KeyEvent e) {
-
+        synchronized (keyLock) {
+            keysTyped.addFirst(e.getKeyChar());
+        }
     }
 
     public void keyPressed(KeyEvent e) {
-
+        synchronized (keyLock) {
+            keysDown.add(e.getKeyCode());
+        }
     }
 
     public void keyReleased(KeyEvent e) {
-
+        synchronized (keyLock) {
+            keysDown.remove(e.getKeyCode());
+        }
     }
 
     public void mouseClicked(MouseEvent e) {
@@ -882,11 +933,17 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
     }
 
     public void mousePressed(MouseEvent e) {
-
+        synchronized (mouseLock) {
+            mouseX = StdDraw.userX(e.getX());
+            mouseY = StdDraw.userY(e.getY());
+            mousePressed = true;
+        }
     }
 
     public void mouseReleased(MouseEvent e) {
-
+        synchronized (mouseLock) {
+            mousePressed = false;
+        }
     }
 
     public void mouseEntered(MouseEvent e) {
@@ -898,10 +955,16 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
     }
 
     public void mouseDragged(MouseEvent e) {
-
+        synchronized (mouseLock) {
+            mouseX = StdDraw.userX(e.getX());
+            mouseY = StdDraw.userY(e.getY());
+        }
     }
 
     public void mouseMoved(MouseEvent e) {
-
+        synchronized (mouseLock) {
+            mouseX = StdDraw.userX(e.getX());
+            mouseY = StdDraw.userY(e.getY());
+        }
     }
 }
