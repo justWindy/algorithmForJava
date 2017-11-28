@@ -1,6 +1,5 @@
 package org.ray.algorithm.search;
 
-import org.ray.algorithm.In;
 import org.ray.algorithm.StdIn;
 import org.ray.algorithm.StdOut;
 
