@@ -262,6 +262,10 @@ public final class In {
         return values;
     }
 
+    public static int[] readInts(String filename) {
+        return new In(filename).readAllInts();
+    }
+
     public void close() {
         scanner.close();
     }

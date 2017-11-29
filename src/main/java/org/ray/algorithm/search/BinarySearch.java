@@ -1,5 +1,6 @@
 package org.ray.algorithm.search;
 
+import org.ray.algorithm.In;
 import org.ray.algorithm.StdIn;
 import org.ray.algorithm.StdOut;
 
@@ -25,13 +26,13 @@ public class BinarySearch {
     }
 
     public static void main(String[] args) {
-        int[] whiteList = StdIn.readAllInts();
+        int[] whiteList = In.readInts(args[0]);
         Arrays.sort(whiteList);
 
         while (!StdIn.isEmpty()) {
             int key = StdIn.readInt();
             if (rank(key, whiteList) < 0) {
-                StdOut.print(key);
+                StdOut.println(key);
             }
         }
     }
