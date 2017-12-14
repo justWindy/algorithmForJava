@@ -3,21 +3,14 @@ package org.ray.algorithm.collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class Queue<Item> implements Iterable<Item> {
+public class Stack<Item> implements Iterable<Item> {
 
     private Node<Item> first;
-    private Node<Item> last;
     private int        n;
 
-    public Queue() {
+    public Stack() {
         first = null;
-        last = null;
         n = 0;
-    }
-
-    @Override
-    public Iterator<Item> iterator() {
-        return new ListIterator<>(first);
     }
 
     public boolean isEmpty() {
@@ -28,40 +21,32 @@ public class Queue<Item> implements Iterable<Item> {
         return n;
     }
 
-    public Item peek() {
-        if (isEmpty()) {
-            throw new NoSuchElementException("Queue underflow");
-        }
-
-        return first.item;
-    }
-
-    public void enqueue(Item item) {
-        Node<Item> oldLast = last;
-        last = new Node<>();
-        last.item = item;
-        last.next = null;
-        if (isEmpty()) {
-            first = last;
-        } else {
-            oldLast.next = last;
-        }
+    public void push(Item item) {
+        Node<Item> oldFirst = first;
+        first = new Node<>();
+        first.item = item;
+        first.next = oldFirst;
         n++;
     }
 
-    public Item dequeue() {
+    public Item pop() {
         if (isEmpty()) {
-            throw new NoSuchElementException("Queue underflow");
+            throw new NoSuchElementException("Stack underflow");
         }
         Item item = first.item;
         first = first.next;
         n--;
-        if (isEmpty()) {
-            last = null;
-        }
         return item;
     }
 
+    public Item peek() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("Stack underflow");
+        }
+        return first.item;
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (Item item : this) {
@@ -70,6 +55,11 @@ public class Queue<Item> implements Iterable<Item> {
         }
 
         return builder.toString();
+    }
+
+    @Override
+    public Iterator<Item> iterator() {
+        return null;
     }
 
     private static class Node<Item> {
@@ -82,8 +72,8 @@ public class Queue<Item> implements Iterable<Item> {
 
         private Node<Item> current;
 
-        public ListIterator(Node<Item> first) {
-            current = first;
+        public ListIterator(Node<Item> current) {
+            this.current = current;
         }
 
         @Override
@@ -96,13 +86,10 @@ public class Queue<Item> implements Iterable<Item> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
+
             Item item = current.item;
             current = current.next;
             return item;
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
         }
     }
 }
