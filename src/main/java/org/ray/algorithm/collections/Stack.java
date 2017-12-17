@@ -1,5 +1,8 @@
 package org.ray.algorithm.collections;
 
+import org.ray.algorithm.StdIn;
+import org.ray.algorithm.StdOut;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -96,5 +99,18 @@ public class Stack<Item> implements Iterable<Item> {
             current = current.next;
             return item;
         }
+    }
+
+    public static void main(String[] args) {
+        Stack<String> stack = new Stack<>();
+        while (!StdIn.isEmpty()) {
+            String item = StdIn.readString();
+            if (!item.equals("-")) {
+                stack.push(item);
+            } else if (!stack.isEmpty()) {
+                StdOut.print(stack.pop() + " ");
+            }
+        }
+        StdOut.println("(" + stack.size() + " left on stack");
     }
 }
