@@ -1,5 +1,8 @@
 package org.ray.algorithm.collections;
 
+import org.ray.algorithm.StdIn;
+import org.ray.algorithm.StdOut;
+
 import java.util.Iterator;
 
 public class Bag<Item> implements Iterable<Item> {
@@ -41,6 +44,7 @@ public class Bag<Item> implements Iterable<Item> {
     }
 
     private class ListIterator<Item> implements Iterator<Item> {
+
         private Node<Item> current;
 
         public ListIterator(Node<Item> first) {
@@ -52,6 +56,7 @@ public class Bag<Item> implements Iterable<Item> {
             return current != null;
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
@@ -61,4 +66,5 @@ public class Bag<Item> implements Iterable<Item> {
             return null;
         }
     }
+
 }

@@ -111,6 +111,9 @@ public class Stack<Item> implements Iterable<Item> {
                 StdOut.print(stack.pop() + " ");
             }
         }
-        StdOut.println("(" + stack.size() + " left on stack");
+        StdOut.println("(" + stack.size() + " left on stack)");
+        while (!stack.isEmpty()) {
+            System.out.print(stack.pop() + " ");
+        }
     }
 }

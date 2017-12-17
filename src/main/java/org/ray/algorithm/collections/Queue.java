@@ -1,5 +1,8 @@
 package org.ray.algorithm.collections;
 
+import org.ray.algorithm.StdIn;
+import org.ray.algorithm.StdOut;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -103,6 +106,23 @@ public class Queue<Item> implements Iterable<Item> {
 
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    public static void main(String[] args) {
+        Queue<String> queue = new Queue<>();
+
+        while (!StdIn.isEmpty()) {
+            String item = StdIn.readString();
+            if (!item.equals("-")) {
+                queue.enqueue(item);
+            } else if (!queue.isEmpty()) {
+                StdOut.print(queue.dequeue() + " ");
+            }
+        }
+        StdOut.println("(" + queue.size() + " left on queue)");
+        while (!queue.isEmpty()) {
+            System.out.print(queue.dequeue() + " ");
         }
     }
 }
