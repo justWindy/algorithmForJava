@@ -59,7 +59,7 @@ public class Stack<Item> implements Iterable<Item> {
 
     @Override
     public Iterator<Item> iterator() {
-        return null;
+        return new ListIterator<Item>(first);
     }
 
     private static class Node<Item> {
@@ -79,6 +79,11 @@ public class Stack<Item> implements Iterable<Item> {
         @Override
         public boolean hasNext() {
             return current != null;
+        }
+
+        @Override
+        public void remove() {
+
         }
 
         @Override
