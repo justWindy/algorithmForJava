@@ -1,8 +1,5 @@
 package org.ray.algorithm.collections;
 
-import org.ray.algorithm.StdIn;
-import org.ray.algorithm.StdOut;
-
 import java.util.Iterator;
 
 public class Bag<Item> implements Iterable<Item> {
@@ -23,13 +20,6 @@ public class Bag<Item> implements Iterable<Item> {
         return n;
     }
 
-    private static class Node<Item> {
-
-        private Item item;
-
-        private Node<Item> next;
-    }
-
     public void add(Item item) {
         Node<Item> oldfirst = first;
         first = new Node<>();
@@ -41,6 +31,13 @@ public class Bag<Item> implements Iterable<Item> {
     @Override
     public Iterator<Item> iterator() {
         return new ListIterator<Item>(first);
+    }
+
+    private static class Node<Item> {
+
+        private Item item;
+
+        private Node<Item> next;
     }
 
     private class ListIterator<Item> implements Iterator<Item> {
