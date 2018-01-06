@@ -1,5 +1,7 @@
 package org.ray.algorithm.sort;
 
+import org.ray.algorithm.StdOut;
+
 import java.util.Comparator;
 
 /**
@@ -129,5 +131,11 @@ public class Insertion {
         }
 
         return true;
+    }
+
+    private static void show(Comparable[] a) {
+        for (int i = 0; i < a.length; i++) {
+            StdOut.println(a[i]);
+        }
     }
 }
