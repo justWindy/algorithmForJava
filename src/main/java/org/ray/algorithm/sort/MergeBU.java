@@ -37,8 +37,13 @@ public class MergeBU {
 
         Comparable[] aux = new Comparable[n];
         for (int len = 1; len < n; len *= 2) {
-
+            for (int low = 0; low < n - len; low += len + len) {
+                int mid = low + len - 1;
+                int high = Math.min(low + len + len - 1, n - 1);
+                merge(a, aux, low, mid, high);
+            }
         }
+        assert isSorted(a);
     }
 
     private static boolean less(Comparable v, Comparable w) {
