@@ -18,12 +18,12 @@ public class Merge {
         assert isSorted(a, low, middle);
         assert isSorted(a, middle + 1, high);
 
-        for (int k = low; k < high; k++) {
+        for (int k = low; k <= high; k++) {
             aux[k] = a[k];
         }
 
         int i = low, j = middle + 1;
-        for (int k = low; k < high; k++) {
+        for (int k = low; k <= high; k++) {
             if (i > middle) {
                 a[k] = aux[j++];
             } else if (j > high) {
@@ -50,7 +50,7 @@ public class Merge {
 
     public static void sort(Comparable[] a) {
         Comparable[] aux = new Comparable[a.length];
-        sort(a, aux, 0, a.length);
+        sort(a, aux, 0, a.length - 1);
         assert isSorted(a);
     }
 
