@@ -188,7 +188,7 @@ public class MinPQ<Key> implements Iterable<Key> {
 
         @Override
         public void remove() {
-
+            throw new UnsupportedOperationException("unsupported this process");
         }
     }
 }
