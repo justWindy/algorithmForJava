@@ -136,7 +136,7 @@ public class MaxPriorityQueue<Key> implements Iterable<Key> {
 
     @Override
     public Iterator<Key> iterator() {
-        return null;
+        return new HeapIterator();
     }
 
     private boolean less(int i, int j) {

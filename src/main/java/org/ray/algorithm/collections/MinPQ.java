@@ -42,8 +42,9 @@ public class MinPQ<Key> implements Iterable<Key> {
         }
 
         for (int k = n / 2; k >= 1; k--) {
-
+            sink(k);
         }
+        assert isMinHeap();
     }
 
     public boolean isEmpty() {
@@ -91,6 +92,30 @@ public class MinPQ<Key> implements Iterable<Key> {
         pq = temp;
     }
 
+    public void insert(Key x) {
+        if (n == pq.length - 1) {
+            resize(2 * pq.length);
+        }
+        pq[++n] = x;
+        swim(n);
+        assert isMinHeap();
+    }
+
+    public Key delMin() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("Priority queue underflow");
+        }
+
+        exchange(1, n);
+        Key min = pq[n--];
+        sink(1);
+        if ((n > 0) && (n == (pq.length - 1) / 4)) {
+            resize(pq.length / 2);
+        }
+        assert isMinHeap();
+        return min;
+    }
+
     private boolean greater(int i, int j) {
         if (comparator == null) {
             return ((Comparable<Key>) pq[i]).compareTo(pq[j]) > 0;
@@ -103,6 +128,10 @@ public class MinPQ<Key> implements Iterable<Key> {
         Key swap = pq[i];
         pq[i] = pq[j];
         pq[j] = swap;
+    }
+
+    private boolean isMinHeap() {
+        return isMinHeap(1);
     }
 
     private boolean isMinHeap(int k) {
@@ -126,5 +155,40 @@ public class MinPQ<Key> implements Iterable<Key> {
     @Override
     public Iterator<Key> iterator() {
         return null;
+    }
+
+    private class HeapIterator implements Iterator<Key> {
+
+        private MinPQ<Key> copy;
+
+        public HeapIterator() {
+            if (comparator == null) {
+                copy = new MinPQ<>(size());
+            } else {
+                copy = new MinPQ<>(size(), comparator);
+            }
+
+            for (int i = 1; i <= n; i++) {
+                copy.insert(pq[i]);
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !copy.isMinHeap();
+        }
+
+        @Override
+        public Key next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return copy.delMin();
+        }
+
+        @Override
+        public void remove() {
+
+        }
     }
 }
