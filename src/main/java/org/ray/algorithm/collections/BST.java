@@ -369,8 +369,14 @@ public class BST<Key extends Comparable<Key>, Value> {
         if (!isBST()) {
             StdOut.println("Not in symmetric order");
         }
+        if (!isSizeConsistent()) {
+            StdOut.println("Subtree count not consistent");
+        }
+        if (!isRankConsistent()) {
+            StdOut.println("Ranks not consistent");
+        }
 
-        return isBST();
+        return isBST() && isRankConsistent() && isSizeConsistent();
     }
 
     private boolean isBST() {
@@ -390,6 +396,36 @@ public class BST<Key extends Comparable<Key>, Value> {
         }
 
         return isBST(x.left, min, x.key) && isBST(x.right, x.key, max);
+    }
+
+    private boolean isSizeConsistent(Node x) {
+        if (x == null) {
+            return true;
+        }
+
+        if (x.size != size(x.left) + size(x.right) + 1) {
+            return false;
+        }
+
+        return isSizeConsistent(x.left) && isSizeConsistent(x.right);
+    }
+
+    private boolean isSizeConsistent() {
+        return isSizeConsistent(root);
+    }
+
+    private boolean isRankConsistent() {
+        for (int i = 0; i < size(); i++) {
+            if (i != rank(select(i))) {
+                return false;
+            }
+        }
+        for (Key key : keys()) {
+            if (key.compareTo(select(rank(key))) != 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private class Node {
