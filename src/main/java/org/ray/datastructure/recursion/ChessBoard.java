@@ -1,4 +1,4 @@
-package org.ray.chuanda.recursion;
+package org.ray.datastructure.recursion;
 
 /**
  * created by ray

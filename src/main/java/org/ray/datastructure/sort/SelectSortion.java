@@ -1,4 +1,4 @@
-package org.ray.chuanda.sort;
+package org.ray.datastructure.sort;
 
 /**
  * created by ray
