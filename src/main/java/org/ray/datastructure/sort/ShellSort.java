@@ -1,5 +1,7 @@
 package org.ray.datastructure.sort;
 
+import java.util.Arrays;
+
 /**
  * created by ray
  * Date: 25/02/2018
@@ -30,6 +32,15 @@ public class ShellSort {
                 incrementalInsertionSort(a, begin, last, space);
             }
         }
+    }
+
+    public static void main(String[] args) {
+        Integer[] array = { 9, 6, 2, 4, 8, 7, 5, 3 };
+
+        System.out.println("before sort:" + Arrays.toString(array));
+        shellSort(array, 0, array.length);
+        System.out.println("after sort:" + Arrays.toString(array));
+
     }
 
 }
