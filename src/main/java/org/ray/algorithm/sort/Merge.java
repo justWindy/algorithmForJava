@@ -115,7 +115,7 @@ public class Merge {
 
     private static void show(Comparable[] a) {
         for (int i = 0; i < a.length; i++) {
-            StdOut.println(a[i]);
+            StdOut.print(a[i] + " ");
         }
     }
 
@@ -126,6 +126,7 @@ public class Merge {
         }
 
         show(test);
+        System.out.println();
         sort(test);
         show(test);
     }

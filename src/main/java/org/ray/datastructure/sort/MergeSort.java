@@ -30,14 +30,17 @@ public class MergeSort {
         int endHalf1 = mid;
         int beginHalf2 = mid + 1;
         int endHalf2 = last;
+        for (int i = first; i <= last; i++) {
+            tempArray[i] = a[i];
+        }
 
         int index = 0;
         while ((beginHalf1 <= endHalf1) && (beginHalf2 <= endHalf2)) {
-            if (a[beginHalf1].compareTo(a[beginHalf2]) < 0) {
-                tempArray[index] = a[beginHalf1];
+            if (tempArray[beginHalf1].compareTo(tempArray[beginHalf2]) < 0) {
+                a[index] = tempArray[beginHalf1];
                 beginHalf1++;
             } else {
-                tempArray[index] = a[beginHalf2];
+                a[index] = tempArray[beginHalf2];
                 beginHalf2++;
             }
             index++;
@@ -48,8 +51,8 @@ public class MergeSort {
         Integer[] array = { 9, 6, 2, 4, 8, 7, 5, 3 };
 
         System.out.println("before sort:" + Arrays.toString(array));
-        Comparable[] temp = mergeSort(array, 0, array.length - 1);
-        System.out.println("after sort:" + Arrays.toString(temp));
+        mergeSort(array, 0, array.length - 1);
+        System.out.println("after sort:" + Arrays.toString(array));
     }
 
 }
