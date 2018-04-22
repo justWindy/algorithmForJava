@@ -1,6 +1,9 @@
 package org.ray.leetcode;
 
 /**
+ * leetCode 7
+ *
+ * @author ray
  * created by ray
  * Date: 2018/4/20
  * Time: 21:56
