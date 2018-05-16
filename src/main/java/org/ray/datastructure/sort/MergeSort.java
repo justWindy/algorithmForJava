@@ -9,11 +9,10 @@ import java.util.Arrays;
  */
 public class MergeSort {
 
-    public static <T extends Comparable<? super T>> T[] mergeSort(T[] a, int first, int last) {
+    public static <T extends Comparable<? super T>> void mergeSort(T[] a, int first, int last) {
         T[] tempArray = (T[]) new Comparable<?>[a.length];
         mergeSort(a, tempArray, first, last);
 
-        return tempArray;
     }
 
     private static <T extends Comparable<? super T>> void mergeSort(T[] a, T[] tempArray, int first, int last) {
@@ -26,24 +25,22 @@ public class MergeSort {
     }
 
     private static <T extends Comparable<? super T>> void merge(T[] a, T[] tempArray, int first, int mid, int last) {
-        int beginHalf1 = first;
-        int endHalf1 = mid;
-        int beginHalf2 = mid + 1;
-        int endHalf2 = last;
         for (int i = first; i <= last; i++) {
             tempArray[i] = a[i];
         }
 
-        int index = 0;
-        while ((beginHalf1 <= endHalf1) && (beginHalf2 <= endHalf2)) {
-            if (tempArray[beginHalf1].compareTo(tempArray[beginHalf2]) < 0) {
-                a[index] = tempArray[beginHalf1];
-                beginHalf1++;
+        int i = first;
+        int j = mid + 1;
+        for (int k = first; k <= last; k++) {
+            if (i > mid) {
+                a[k] = tempArray[j++];
+            } else if (j > last) {
+                a[k] = tempArray[i++];
+            } else if (tempArray[i].compareTo(tempArray[j]) < 0) {
+                a[k] = tempArray[i++];
             } else {
-                a[index] = tempArray[beginHalf2];
-                beginHalf2++;
+                a[k] = tempArray[j++];
             }
-            index++;
         }
     }
 
