@@ -18,6 +18,8 @@ public class RotateString {
         System.out.println(Arrays.toString(chars));
         System.out.println(String.valueOf(chars));
 
+        System.out.println("test help");
+
     }
 
     private static void reverseString(char[] s, int from, int to) {
